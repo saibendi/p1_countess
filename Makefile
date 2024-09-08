@@ -28,7 +28,7 @@ UNIQNAME    = youruniqname
 IDENTIFIER  = B99292359FFD910ED13A7E6C7F9705B8742F0D79
 
 # Change 'executable' to match the command name given in the project spec.
-EXECUTABLE  = superMarco
+EXECUTABLE  = main
 
 # The following line looks for a project's main() in files named project*.cpp,
 # executable.cpp (substituted from EXECUTABLE above), or main.cpp
