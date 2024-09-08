@@ -325,6 +325,8 @@ help:
 #
 # ADD YOUR OWN DEPENDENCIES HERE
 
+#test_thing: test.cpp main.cpp
+
 ######################
 # TODO (end) #
 ######################
