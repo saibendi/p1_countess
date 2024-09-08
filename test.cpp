@@ -11,9 +11,24 @@
 using namespace std;
 
 int main() {
+    cout << "TESTING: readFromInput" << "\n";
     try {
+        int switchval = 3;
+        
+        
         castleMap c;
-        string filename = "spec-pipe-L.txt";
+        string filename;
+        switch (switchval) {
+            case 1:
+                filename = "spec-L.txt";
+                break;
+            case 2:
+                filename = "spec-pipe-L.txt";
+                break;
+            case 3:
+                filename = "sample-Small-L.txt";
+                break;
+        }
         c.readFromInput(filename);
     }
     catch (std::runtime_error &e) {
