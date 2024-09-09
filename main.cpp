@@ -140,12 +140,12 @@ void castleMap::readFromInput(const string &filename) {
 
 //int argc, const char * argv[]
 
-int main_2(/*int argc, const char * argv[]*/) {
+int main(/*int argc, const char * argv[]*/) {
     // turning off synchronzied C-C++ I/O - saves time
     std::ios_base::sync_with_stdio(false);
     try {
         castleMap c;
-        string filename = "spec-L.txt";
+        string filename = "sample-Big-L.txt";
         c.readFromInput(filename);
     }
     catch (std::runtime_error &e) {

@@ -10,11 +10,10 @@
 
 using namespace std;
 
-int main() {
+int main_2() {
     cout << "TESTING: readFromInput" << "\n";
     try {
-        int switchval = 6;
-        
+        int switchval = 3;
         
         castleMap c;
         string filename;
@@ -29,15 +28,23 @@ int main() {
                 filename = "sample-Small-L.txt";
                 break;
             case 4:
-                filename = "spec-M.txt";
+                filename = "sample-Big-L.txt";
                 break;
             case 5:
-                filename = "spec-pipe-M.txt";
+                filename = "sample-no-solution.txt";
                 break;
             case 6:
+                filename = "spec-M.txt";
+                break;
+            case 7:
+                filename = "spec-pipe-M.txt";
+                break;
+            case 8:
                 filename = "sample-Small-M.txt";
                 break;
-
+            case 9:
+                filename = "sample-Big-M.txt";
+                break;
         }
         c.readFromInput(filename);
     }
