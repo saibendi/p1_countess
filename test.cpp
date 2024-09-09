@@ -13,7 +13,7 @@ using namespace std;
 int main() {
     cout << "TESTING: readFromInput" << "\n";
     try {
-        int switchval = 3;
+        int switchval = 6;
         
         
         castleMap c;
@@ -28,6 +28,16 @@ int main() {
             case 3:
                 filename = "sample-Small-L.txt";
                 break;
+            case 4:
+                filename = "spec-M.txt";
+                break;
+            case 5:
+                filename = "spec-pipe-M.txt";
+                break;
+            case 6:
+                filename = "sample-Small-M.txt";
+                break;
+
         }
         c.readFromInput(filename);
     }
