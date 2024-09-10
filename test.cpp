@@ -10,10 +10,10 @@
 
 using namespace std;
 
-int main_2() {
+int main() {
     cout << "TESTING: readFromInput" << "\n";
     try {
-        int switchval = 3;
+        int switchval = 2;
         
         castleMap c;
         string filename;
@@ -47,6 +47,7 @@ int main_2() {
                 break;
         }
         c.readFromInput(filename);
+        //c.searchAlgorithm();
     }
     catch (std::runtime_error &e) {
         std::cerr << e.what() << std::endl;
