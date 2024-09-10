@@ -124,6 +124,16 @@ private:
         }
     }
 
+    bool locationIsMoveable(const Location &newLoc) {
+        bool roomIsValid = (newLoc.room >= 0 && newLoc.room <= numRooms-1);
+        bool rowIsValid = (newLoc.row >=0 && newLoc.row <= lengthRoomSide - 1);
+        bool colIsValid = (newLoc.col >=0 && newLoc.col <= lengthRoomSide - 1);
+        bool newLocIsWall = (castleMap[newLoc.room][newLoc.row][newLoc.col] == '#');
+        bool newLocIsMinion = (castleMap[newLoc.room][newLoc.row][newLoc.col] == '!');
+
+        return roomIsValid && rowIsValid && colIsValid && !newLocIsWall && !newLocIsMinion;
+    }
+    
 public:
     void readFromInput(const string &filename);
     void searchAlgorithm();
@@ -134,15 +144,45 @@ void castleMap::searchAlgorithm() {
     Location current; 
     // Current Location isn't equal to Countess Location)
     while (!(current == C)) {
+        // 0. If search container is empty before you reach Countess, search has failed
+        if (search.empty()) {
+            cout << "no path to rescue Countess" << endl; 
+            break;
+        }
         // 1. Remove the next position from search container
-        current = C;
+        current = search.back();
+        search.pop_back();      // deleting element once we remove it off stack
+        // 2. if position has a warp pipe; probably need to do some level of char->int int-> char conversion here
+        if (castleMap[current.room][current.row][current.col] >= 0 && castleMap[current.room][current.row][current.col] <= 9) {
+            //TODO: replace continue w/ logic
+            continue;
+        }
+        else {
+            // N: current row - 1
+            Location N = {current.room, current.row - 1, current.col};
+            // E: current col + 1
+            Location E = {current.room, current.row, current.col + 1};
+            // S: current row + 1; check to see if it's out of bounds
+            Location S = {current.room, current.row + 1, current.col};
+            // W: current col - 1; check to see if it's out of bounds
+            Location W = {current.room, current.row, current.col - 2};
+
+            // check to see if location is moveable
+            if (locationIsMoveable(N)) {
+                search.push_back(N);
+            }
+            if (locationIsMoveable(E)) {
+                search.push_back(E);
+            }
+            if (locationIsMoveable(S)) {
+                search.push_back(S);
+            }
+            if (locationIsMoveable(W)) {
+                search.push_back(W);
+            }
+        }
     }
     
-    
-    // N: current row - 1; check to see if it's out of bounds
-    // E: current col + 1; check to see if it's out of bounds
-    // S: current row + 1; check to see if it's out of bounds
-    // W: current col - 1; check to see if it's out of bounds
 }
 
 void castleMap::readFromInput(const string &filename) {
