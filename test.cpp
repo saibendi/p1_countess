@@ -47,7 +47,7 @@ int main() {
                 break;
         }
         c.readFromInput(filename);
-        //c.searchAlgorithm();
+        c.searchAlgorithm();
     }
     catch (std::runtime_error &e) {
         std::cerr << e.what() << std::endl;

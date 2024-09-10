@@ -20,12 +20,25 @@ private:
     char inputMode;
     size_t numRooms;
     uint32_t lengthRoomSide;
-    vector<vector<vector<char>>> castleMap;
     
-    // Marco (S) location
-    size_t room_S;
-    size_t row_S;
-    size_t col_S;
+    // defining a struct Location to hold values
+    struct Location {
+        size_t room;
+        size_t row;
+        size_t col;
+        
+        bool operator==(const Location &rhs) {
+            return room == rhs.room && row == rhs.row && col == rhs.col;
+        }
+    };
+    
+    // main data structures
+    vector<vector<vector<char>>> castleMap;
+    deque<Location> search;
+    
+    // Marco (S) and Countess (C) location
+    Location S;
+    Location C;
 
     void processingListMode(string &line) {
         // skip comments
@@ -51,9 +64,10 @@ private:
             char ch = line[pos1];
             
             if (ch == 'S') {
-                room_S = room;
-                row_S = row;
-                col_S = col;
+                S = {room, row, col};
+            }
+            else if (ch == 'C') {
+                C = {room, row, col};
             }
             
             castleMap[room][row][col] = ch;
@@ -71,9 +85,10 @@ private:
             if (line[col] != '.') {
                 //cout << line[col] << endl;
                 if (line[col]  == 'S') {
-                    room_S = room;
-                    row_S = row;
-                    col_S = col;
+                    S = {room, row, col};
+                }
+                else if (line[col] == 'C') {
+                    C = {room, row, col};
                 }
                 castleMap[room][row][col] = line[col];
             }
@@ -115,10 +130,15 @@ public:
 };
 
 void castleMap::searchAlgorithm() {
-    cout << "Room S: " << room_S << endl;
-    cout << "Row S: " << row_S << endl;
-    cout << "Col S: " << col_S << endl;
-
+    search.push_back(S);
+    Location current; 
+    // Current Location isn't equal to Countess Location)
+    while (!(current == C)) {
+        // 1. Remove the next position from search container
+        current = C;
+    }
+    
+    
     // N: current row - 1; check to see if it's out of bounds
     // E: current col + 1; check to see if it's out of bounds
     // S: current row + 1; check to see if it's out of bounds
