@@ -146,7 +146,7 @@ void castleMap::searchAlgorithm() {
     while (!(current == C)) {
         // 0. If search container is empty before you reach Countess, search has failed
         if (search.empty()) {
-            cout << "no path to rescue Countess" << endl; 
+            cout << "no path to rescue Countess" << endl;
             break;
         }
         // 1. Remove the next position from search container
