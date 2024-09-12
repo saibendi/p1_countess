@@ -13,7 +13,7 @@ using namespace std;
 int main() {
     cout << "TESTING: readFromInput" << "\n";
     try {
-        int switchval = 2;
+        int switchval = 1;
         
         castleMap c;
         string filename;

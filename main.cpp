@@ -11,6 +11,7 @@
 #include <getopt.h>
 #include <vector>
 #include <deque>
+#include <algorithm>
 
 using namespace std;
 
@@ -29,6 +30,12 @@ private:
         
         bool operator==(const Location &rhs) {
             return room == rhs.room && row == rhs.row && col == rhs.col;
+        }
+        
+        //TODO: comment out; just for debug purposes until I find something to do it with it later
+        friend ostream& operator<<(ostream& os, const Location &loc) {
+            os << "(" << loc.room << "," << loc.row << "," << loc.col << ")" << endl;
+            return os;
         }
     };
     
@@ -134,6 +141,11 @@ private:
         return roomIsValid && rowIsValid && colIsValid && !newLocIsWall && !newLocIsMinion;
     }
     
+    bool locationNotVisited(const vector<Location> &locationHistory) {
+        // check to see if current has been previously visited
+        return find(locationHistory.begin(), locationHistory.end(), current) != locationHistory.end());
+    }
+    
 public:
     void readFromInput(const string &filename);
     void searchAlgorithm();
@@ -141,9 +153,12 @@ public:
 
 void castleMap::searchAlgorithm() {
     search.push_back(S);
-    Location current; 
+    Location current;
+    vector<Location> locationHistory;
+    int i = 0;
     // Current Location isn't equal to Countess Location)
     while (!(current == C)) {
+        ++i;
         // 0. If search container is empty before you reach Countess, search has failed
         if (search.empty()) {
             cout << "no path to rescue Countess" << endl;
@@ -151,7 +166,15 @@ void castleMap::searchAlgorithm() {
         }
         // 1. Remove the next position from search container
         current = search.back();
+        // check to see if current has been previously visited
+        while (find(locationHistory.begin(), locationHistory.end(), current) != locationHistory.end()) {
+            search.pop_back();      // deleting element once we remove it off stack
+            current = search.back();
+        }
         search.pop_back();      // deleting element once we remove it off stack
+        locationHistory.push_back(current); // add it to location history now
+        cout << "Current: (" << current.room << "," << current.row << "," << current.col << ")" << endl;
+
         // 2. if position has a warp pipe; probably need to do some level of char->int int-> char conversion here
         if (castleMap[current.room][current.row][current.col] >= 0 && castleMap[current.room][current.row][current.col] <= 9) {
             //TODO: replace continue w/ logic
@@ -160,15 +183,19 @@ void castleMap::searchAlgorithm() {
         else {
             // N: current row - 1
             Location N = {current.room, current.row - 1, current.col};
+            cout << N << " " << locationIsMoveable(N) << endl;
             // E: current col + 1
             Location E = {current.room, current.row, current.col + 1};
+            cout << E << " " << locationIsMoveable(E) << endl;
             // S: current row + 1; check to see if it's out of bounds
             Location S = {current.room, current.row + 1, current.col};
+            cout << S << " " << locationIsMoveable(S) << endl;
             // W: current col - 1; check to see if it's out of bounds
-            Location W = {current.room, current.row, current.col - 2};
-
+            Location W = {current.room, current.row, current.col - 1};
+            cout << W << " " << locationIsMoveable(W) << endl;
+            
             // check to see if location is moveable
-            if (locationIsMoveable(N)) {
+            if (locationIsMoveable(N) && ) {
                 search.push_back(N);
             }
             if (locationIsMoveable(E)) {
@@ -180,6 +207,13 @@ void castleMap::searchAlgorithm() {
             if (locationIsMoveable(W)) {
                 search.push_back(W);
             }
+        }
+        cout << "-----------Search----------" << endl;
+        for (auto i : search) {
+            cout << i;
+        }
+        if (i == 3) {
+            break;
         }
     }
     
