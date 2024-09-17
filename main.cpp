@@ -28,7 +28,7 @@ private:
         size_t row;
         size_t col;
         
-        bool operator==(const Location &rhs) {
+        bool operator==(const Location &rhs) const {
             return room == rhs.room && row == rhs.row && col == rhs.col;
         }
         
@@ -135,15 +135,22 @@ private:
         bool roomIsValid = (newLoc.room >= 0 && newLoc.room <= numRooms-1);
         bool rowIsValid = (newLoc.row >=0 && newLoc.row <= lengthRoomSide - 1);
         bool colIsValid = (newLoc.col >=0 && newLoc.col <= lengthRoomSide - 1);
-        bool newLocIsWall = (castleMap[newLoc.room][newLoc.row][newLoc.col] == '#');
-        bool newLocIsMinion = (castleMap[newLoc.room][newLoc.row][newLoc.col] == '!');
-
+        
+        bool newLocIsWall = false;
+        bool newLocIsMinion = false;
+        
+        // only enter if loc is Valid
+        if (roomIsValid && rowIsValid && colIsValid) {
+            newLocIsWall = (castleMap[newLoc.room][newLoc.row][newLoc.col] == '#');
+            newLocIsMinion = (castleMap[newLoc.room][newLoc.row][newLoc.col] == '!');
+        }
         return roomIsValid && rowIsValid && colIsValid && !newLocIsWall && !newLocIsMinion;
     }
     
-    bool locationNotVisited(const vector<Location> &locationHistory) {
+    //TODO: need to replace check here; think of not doing O(N), maybe try binary / ternary search / need sorted vector for that
+    bool locationNotVisited(const vector<Location> &locationHistory, const Location &input) {
         // check to see if current has been previously visited
-        return find(locationHistory.begin(), locationHistory.end(), current) != locationHistory.end());
+        return (find(locationHistory.begin(), locationHistory.end(), input)) == locationHistory.end();
     }
     
 public:
@@ -154,11 +161,12 @@ public:
 void castleMap::searchAlgorithm() {
     search.push_back(S);
     Location current;
-    vector<Location> locationHistory;
-    int i = 0;
+    vector<Location> locationVisitedHistory;
+    vector<Location> locationMoveableHistory;
+//    int i = 0;
     // Current Location isn't equal to Countess Location)
     while (!(current == C)) {
-        ++i;
+//        ++i;
         // 0. If search container is empty before you reach Countess, search has failed
         if (search.empty()) {
             cout << "no path to rescue Countess" << endl;
@@ -166,13 +174,10 @@ void castleMap::searchAlgorithm() {
         }
         // 1. Remove the next position from search container
         current = search.back();
-        // check to see if current has been previously visited
-        while (find(locationHistory.begin(), locationHistory.end(), current) != locationHistory.end()) {
-            search.pop_back();      // deleting element once we remove it off stack
-            current = search.back();
-        }
+        //TODO: think about potentially doing out of bounds check here itself when we read the current value to avoid subtracting row -1 and getting random numbers like 184903099009309
+
         search.pop_back();      // deleting element once we remove it off stack
-        locationHistory.push_back(current); // add it to location history now
+        locationVisitedHistory.push_back(current); // add it to location history now
         cout << "Current: (" << current.room << "," << current.row << "," << current.col << ")" << endl;
 
         // 2. if position has a warp pipe; probably need to do some level of char->int int-> char conversion here
@@ -182,6 +187,7 @@ void castleMap::searchAlgorithm() {
         }
         else {
             // N: current row - 1
+            // if row is not equal to 0 
             Location N = {current.room, current.row - 1, current.col};
             cout << N << " " << locationIsMoveable(N) << endl;
             // E: current col + 1
@@ -193,28 +199,34 @@ void castleMap::searchAlgorithm() {
             // W: current col - 1; check to see if it's out of bounds
             Location W = {current.room, current.row, current.col - 1};
             cout << W << " " << locationIsMoveable(W) << endl;
-            
+            cout << "step into else" << endl;
+
             // check to see if location is moveable
-            if (locationIsMoveable(N) && ) {
+            if (locationIsMoveable(N) && locationNotVisited(locationVisitedHistory, N) && locationNotVisited(locationMoveableHistory, N)) {
+                
                 search.push_back(N);
+                locationMoveableHistory.push_back(N); // add it to location history now
             }
-            if (locationIsMoveable(E)) {
+            if (locationIsMoveable(E) && locationNotVisited(locationVisitedHistory, E) && locationNotVisited(locationMoveableHistory, E)) {
                 search.push_back(E);
+                locationMoveableHistory.push_back(E); // add it to location history now
             }
-            if (locationIsMoveable(S)) {
+            if (locationIsMoveable(S) && locationNotVisited(locationVisitedHistory, S) && locationNotVisited(locationMoveableHistory, S)) {
                 search.push_back(S);
+                locationMoveableHistory.push_back(N); // add it to location history now
             }
-            if (locationIsMoveable(W)) {
+            if (locationIsMoveable(W) && locationNotVisited(locationVisitedHistory, W) && locationNotVisited(locationMoveableHistory, W)) {
                 search.push_back(W);
+                locationMoveableHistory.push_back(N); // add it to location history now
             }
         }
         cout << "-----------Search----------" << endl;
         for (auto i : search) {
             cout << i;
         }
-        if (i == 3) {
-            break;
-        }
+//        if (i == 3) {
+//            break;
+//        }
     }
     
 }
