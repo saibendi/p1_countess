@@ -213,11 +213,11 @@ void castleMap::searchAlgorithm() {
             }
             if (locationIsMoveable(S) && locationNotVisited(locationVisitedHistory, S) && locationNotVisited(locationMoveableHistory, S)) {
                 search.push_back(S);
-                locationMoveableHistory.push_back(N); // add it to location history now
+                locationMoveableHistory.push_back(S); // add it to location history now
             }
             if (locationIsMoveable(W) && locationNotVisited(locationVisitedHistory, W) && locationNotVisited(locationMoveableHistory, W)) {
                 search.push_back(W);
-                locationMoveableHistory.push_back(N); // add it to location history now
+                locationMoveableHistory.push_back(W); // add it to location history now
             }
         }
         cout << "-----------Search----------" << endl;
