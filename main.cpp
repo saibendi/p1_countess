@@ -164,10 +164,12 @@ void castleMap::searchAlgorithm() {
     vector<Location> locationVisitedHistory;
     vector<Location> locationMoveableHistory;
     bool foundC = false;
-    
+//    int i = 0;
+
     if (inputMode == 'L') {
         while (!search.empty()) {
-            
+//            ++i;
+
             // Set Current
             current = search.back();
             search.pop_back();      // deleting element once we remove it off stack
@@ -184,7 +186,8 @@ void castleMap::searchAlgorithm() {
             // TODO: include another if statement to not do this every iteration -- if (char != '.' etc.)
             // Warp Pipe; probably need to do some level of char->int int-> char conversion here
             uint32_t level = static_cast<uint32_t>(castleMap[current.room][current.row][current.col] - '0');
-            if (level >= 0 && level <= 9) {
+            // checks if level is between 0-9 and prevents infinite loop of warping back into same room
+            if (level != current.room && level >= 0 && level <= 9) {
                 // create new exit location
                 Location warpPipeExitLoc = {level, current.row, current.col};
                 // check to see if warp pipe isn't taking you to a enemy or a solid wall
@@ -237,11 +240,13 @@ void castleMap::searchAlgorithm() {
                 }
             }
             
-            cout << "-----------Search----------" << "\n";
-            for (auto i : search) {
-                cout << i;
-            }
-            
+            //cout << "-----------Search----------" << "\n";
+            //for (auto i : search) {
+            //    cout << i;
+            //}
+//            if (i == 97) {
+//                break;
+//            }
         }
     }
     else if (inputMode == 'M') {
