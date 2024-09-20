@@ -34,7 +34,7 @@ private:
         
         //TODO: comment out; just for debug purposes until I find something to do it with it later
         friend ostream& operator<<(ostream& os, const Location &loc) {
-            os << "(" << loc.room << "," << loc.row << "," << loc.col << ")" << endl;
+            os << "(" << loc.room << "," << loc.row << "," << loc.col << ")" << "\n";
             return os;
         }
     };
@@ -90,7 +90,7 @@ private:
         for (size_t col = 0; col < lengthRoomSide; ++col) {
             // avoiding rewriting '.' char
             if (line[col] != '.') {
-                //cout << line[col] << endl;
+                //cout << line[col] << "\n";
                 if (line[col]  == 'S') {
                     S = {room, row, col};
                 }
@@ -165,75 +165,85 @@ void castleMap::searchAlgorithm() {
     vector<Location> locationMoveableHistory;
     bool foundC = false;
     
-    while (!search.empty()) {
-        
-        // Set Current
-        current = search.back();
-        search.pop_back();      // deleting element once we remove it off stack
-        locationVisitedHistory.push_back(current); // add it to location history now
-        cout << "Current: (" << current.room << "," << current.row << "," << current.col << ")" << endl;
-
-        // found C
-        if (current == C) {
-            foundC = true;
-            break;
-        }
-        
-        // Warp Pipe; probably need to do some level of char->int int-> char conversion here
-        if (castleMap[current.room][current.row][current.col] >= 0 && castleMap[current.room][current.row][current.col] <= 9) {
-            //TODO: replace continue w/ logic
-            continue;
-        }
-
-        // Adding to Search
-        if (current.row != 0) {
-            // N: current row - 1
-            // if row is not equal to 0
-            Location N = {current.room, current.row - 1, current.col};
-            cout << N << " " << locationIsMoveable(N) << endl;
-            // check to see if location is moveable
-            if (locationIsMoveable(N) && locationNotVisited(locationVisitedHistory, N) && locationNotVisited(locationMoveableHistory, N)) {
-                search.push_back(N);
-                locationMoveableHistory.push_back(N); // add it to location history now
+    if (inputMode == 'L') {
+        while (!search.empty()) {
+            
+            // Set Current
+            current = search.back();
+            search.pop_back();      // deleting element once we remove it off stack
+            locationVisitedHistory.push_back(current); // add it to location history now
+            
+            // found C
+            if (current == C) {
+                foundC = true;
+                cout << "Found C: " << C << "\n";
+                break;
             }
-        }
-        if (current.row != lengthRoomSide-1) {
-            // E: current col + 1
-            Location E = {current.room, current.row, current.col + 1};
-            cout << E << " " << locationIsMoveable(E) << endl;
-            if (locationIsMoveable(E) && locationNotVisited(locationVisitedHistory, E) && locationNotVisited(locationMoveableHistory, E)) {
-                search.push_back(E);
-                locationMoveableHistory.push_back(E); // add it to location history now
+            cout << "Current: (" << current.room << "," << current.row << "," << current.col << ")" << "\n";
+            
+            // TODO: include another if statement to not do this every iteration -- if (char != '.' etc.)
+            uint32_t level = static_cast<uint32_t>(castleMap[current.room][current.row][current.col] - '0');
+            // Warp Pipe; probably need to do some level of char->int int-> char conversion here
+            if (level >= 0 && level <= 9) {
+                //TODO: replace continue w/ logic
+                cout << "WARP PIPE" << "\n";
+                continue;
             }
-        }
-        if (current.row != lengthRoomSide-1) {
-            // S: current row + 1; check to see if it's out of bounds
-            Location S = {current.room, current.row + 1, current.col};
-            cout << S << " " << locationIsMoveable(S) << endl;
-            if (locationIsMoveable(S) && locationNotVisited(locationVisitedHistory, S) && locationNotVisited(locationMoveableHistory, S)) {
-                search.push_back(S);
-                locationMoveableHistory.push_back(S); // add it to location history now
+            
+            // Adding to Search
+            if (current.row != 0) {
+                // N: current row - 1
+                // if row is not equal to 0
+                Location N = {current.room, current.row - 1, current.col};
+                //cout << N << " " << locationIsMoveable(N) << "\n";
+                // check to see if location is moveable
+                if (locationIsMoveable(N) && locationNotVisited(locationVisitedHistory, N) && locationNotVisited(locationMoveableHistory, N)) {
+                    search.push_back(N);
+                    locationMoveableHistory.push_back(N); // add it to location history now
+                }
             }
-        }
-        if (current.col != 0) {
-            // W: current col - 1; check to see if it's out of bounds
-            Location W = {current.room, current.row, current.col - 1};
-            cout << W << " " << locationIsMoveable(W) << endl;
-            if (locationIsMoveable(W) && locationNotVisited(locationVisitedHistory, W) && locationNotVisited(locationMoveableHistory, W)) {
-                search.push_back(W);
-                locationMoveableHistory.push_back(W); // add it to location history now
+            if (current.row != lengthRoomSide-1) {
+                // E: current col + 1
+                Location E = {current.room, current.row, current.col + 1};
+                //cout << E << " " << locationIsMoveable(E) << "\n";
+                if (locationIsMoveable(E) && locationNotVisited(locationVisitedHistory, E) && locationNotVisited(locationMoveableHistory, E)) {
+                    search.push_back(E);
+                    locationMoveableHistory.push_back(E); // add it to location history now
+                }
             }
-        }
-
-        cout << "-----------Search----------" << endl;
-        for (auto i : search) {
-            cout << i;
+            if (current.row != lengthRoomSide-1) {
+                // S: current row + 1; check to see if it's out of bounds
+                Location S = {current.room, current.row + 1, current.col};
+                //cout << S << " " << locationIsMoveable(S) << "\n";
+                if (locationIsMoveable(S) && locationNotVisited(locationVisitedHistory, S) && locationNotVisited(locationMoveableHistory, S)) {
+                    search.push_back(S);
+                    locationMoveableHistory.push_back(S); // add it to location history now
+                }
+            }
+            if (current.col != 0) {
+                // W: current col - 1; check to see if it's out of bounds
+                Location W = {current.room, current.row, current.col - 1};
+                //cout << W << " " << locationIsMoveable(W) << "\n";
+                if (locationIsMoveable(W) && locationNotVisited(locationVisitedHistory, W) && locationNotVisited(locationMoveableHistory, W)) {
+                    search.push_back(W);
+                    locationMoveableHistory.push_back(W); // add it to location history now
+                }
+            }
+            
+            cout << "-----------Search----------" << "\n";
+            for (auto i : search) {
+                cout << i;
+            }
+            
         }
     }
+    else if (inputMode == 'M') {
+    }
+
     
     // Search has failed
     if (!foundC) {
-        cout << "no path to rescue Countess" << endl;
+        cout << "no path to rescue Countess" << "\n";
     }
 }
 
@@ -242,7 +252,7 @@ void castleMap::readFromInput(const string &filename) {
     ifstream fin;
     fin.open(filename.c_str());
     if (!fin.is_open()) {
-        std::cout << "open failed" << std::endl;
+        std::cout << "open failed" << "\n";
         exit(1);
     }
     
@@ -267,7 +277,7 @@ void castleMap::readFromInput(const string &filename) {
         size_t room = 0;
         size_t row = 0;
         while (getline(fin,line)) {
-            cout << line << endl;
+            cout << line << "\n";
             processingMapMode(line, room, row);
         }
         //TODO: debugging by printing output
