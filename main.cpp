@@ -139,7 +139,7 @@ private:
         bool newLocIsWall = false;
         bool newLocIsMinion = false;
         
-        // only enter if loc is Valid
+        // only check if loc is Valid
         if (roomIsValid && rowIsValid && colIsValid) {
             newLocIsWall = (castleMap[newLoc.room][newLoc.row][newLoc.col] == '#');
             newLocIsMinion = (castleMap[newLoc.room][newLoc.row][newLoc.col] == '!');
@@ -182,11 +182,18 @@ void castleMap::searchAlgorithm() {
             cout << "Current: (" << current.room << "," << current.row << "," << current.col << ")" << "\n";
             
             // TODO: include another if statement to not do this every iteration -- if (char != '.' etc.)
-            uint32_t level = static_cast<uint32_t>(castleMap[current.room][current.row][current.col] - '0');
             // Warp Pipe; probably need to do some level of char->int int-> char conversion here
+            uint32_t level = static_cast<uint32_t>(castleMap[current.room][current.row][current.col] - '0');
             if (level >= 0 && level <= 9) {
-                //TODO: replace continue w/ logic
-                cout << "WARP PIPE" << "\n";
+                // create new exit location
+                Location warpPipeExitLoc = {level, current.row, current.col};
+                // check to see if warp pipe isn't taking you to a enemy or a solid wall
+                if (locationIsMoveable(warpPipeExitLoc)) {
+                    // TODO: do we need to do this? do we need to clear all elements from previous room?
+                    // search.clear();
+                    search.push_back(warpPipeExitLoc);
+                }
+                //cout << "WARP PIPE" << "\n";
                 continue;
             }
             
