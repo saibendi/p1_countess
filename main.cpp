@@ -162,7 +162,7 @@ void castleMap::searchAlgorithm() {
     search.push_back(S);
     Location current;
     vector<Location> locationVisitedHistory;
-    vector<Location> locationMoveableHistory;
+//    vector<Location> locationMoveableHistory;
     bool foundC = false;
 //    int i = 0;
 
@@ -189,15 +189,15 @@ void castleMap::searchAlgorithm() {
             // checks if level is between 0-9 and prevents infinite loop of warping back into same room
             if (level != current.room && level >= 0 && level <= 9) {
                 // create new exit location
-                Location warpPipeExitLoc = {level, current.row, current.col};
-                // check to see if warp pipe isn't taking you to a enemy or a solid wall
-                if (locationIsMoveable(warpPipeExitLoc)) {
+                Location exitLoc = {level, current.row, current.col};
+                // check to see if warp pipe isn't taking you to a enemy or a solid wall and check if you've already been there
+                if (locationIsMoveable(exitLoc) && locationNotVisited(locationVisitedHistory, exitLoc)) {
                     // TODO: do we need to do this? do we need to clear all elements from previous room?
                     // search.clear();
-                    search.push_back(warpPipeExitLoc);
+                    search.push_back(exitLoc);
+                    continue;
                 }
-                //cout << "WARP PIPE" << "\n";
-                continue;
+                //do nothing
             }
             
             // Adding to Search
@@ -207,36 +207,36 @@ void castleMap::searchAlgorithm() {
                 Location N = {current.room, current.row - 1, current.col};
                 //cout << N << " " << locationIsMoveable(N) << "\n";
                 // check to see if location is moveable
-                if (locationIsMoveable(N) && locationNotVisited(locationVisitedHistory, N) && locationNotVisited(locationMoveableHistory, N)) {
+                if (locationIsMoveable(N) && locationNotVisited(locationVisitedHistory, N)) {
                     search.push_back(N);
-                    locationMoveableHistory.push_back(N); // add it to location history now
+                    //locationMoveableHistory.push_back(N); // add it to location history now
                 }
             }
             if (current.row != lengthRoomSide-1) {
                 // E: current col + 1
                 Location E = {current.room, current.row, current.col + 1};
                 //cout << E << " " << locationIsMoveable(E) << "\n";
-                if (locationIsMoveable(E) && locationNotVisited(locationVisitedHistory, E) && locationNotVisited(locationMoveableHistory, E)) {
+                if (locationIsMoveable(E) && locationNotVisited(locationVisitedHistory, E)) {
                     search.push_back(E);
-                    locationMoveableHistory.push_back(E); // add it to location history now
+                    //locationMoveableHistory.push_back(E); // add it to location history now
                 }
             }
             if (current.row != lengthRoomSide-1) {
                 // S: current row + 1; check to see if it's out of bounds
                 Location S = {current.room, current.row + 1, current.col};
                 //cout << S << " " << locationIsMoveable(S) << "\n";
-                if (locationIsMoveable(S) && locationNotVisited(locationVisitedHistory, S) && locationNotVisited(locationMoveableHistory, S)) {
+                if (locationIsMoveable(S) && locationNotVisited(locationVisitedHistory, S)) {
                     search.push_back(S);
-                    locationMoveableHistory.push_back(S); // add it to location history now
+//                    locationMoveableHistory.push_back(S); // add it to location history now
                 }
             }
             if (current.col != 0) {
                 // W: current col - 1; check to see if it's out of bounds
                 Location W = {current.room, current.row, current.col - 1};
                 //cout << W << " " << locationIsMoveable(W) << "\n";
-                if (locationIsMoveable(W) && locationNotVisited(locationVisitedHistory, W) && locationNotVisited(locationMoveableHistory, W)) {
+                if (locationIsMoveable(W) && locationNotVisited(locationVisitedHistory, W)) {
                     search.push_back(W);
-                    locationMoveableHistory.push_back(W); // add it to location history now
+//                    locationMoveableHistory.push_back(W); // add it to location history now
                 }
             }
             
