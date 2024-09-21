@@ -43,7 +43,7 @@ private:
     // main data structures
     vector<vector<vector<char>>> castleMap;
     deque<Location> search;
-    std::map<size_t, vector<std::pair<size_t,size_t>>> locationVisitedHistory;
+    std::map<size_t, vector<Location>> locationVisitedHistory;
     
     // Marco (S) and Countess (C) location
     Location S;
@@ -152,9 +152,8 @@ private:
     //TODO: need to replace check here; think of not doing O(N), maybe try binary / ternary search / need sorted vector for that
     bool locationNotVisited(const Location &input) {
         // check to see if current has been previously visited
-        vector<std::pair<size_t,size_t>> valuesForRoom = locationVisitedHistory[input.room];
-        std::pair<size_t, size_t> rowColPair = make_pair(input.row, input.col);
-        return (find(valuesForRoom.begin(), valuesForRoom.end(), rowColPair)) == valuesForRoom.end();
+        vector<Location> rowValues = locationVisitedHistory[input.row];
+        return (find(rowValues.begin(), rowValues.end(), input)) == rowValues.end();
     }
     
 public:
@@ -165,8 +164,8 @@ public:
 void castleMap::searchAlgorithm() {
     search.push_back(S);
     Location current;
-    vector<std::pair<size_t,size_t>> temp = {};
-    for (size_t i = 1; i <= numRooms; ++i) {
+    vector<Location> temp = {};
+    for (size_t i = 0; i < lengthRoomSide; ++i) {
         locationVisitedHistory[i] = temp;
     }
     bool foundC = false;
@@ -178,8 +177,7 @@ void castleMap::searchAlgorithm() {
 
             // Set Current
             current = search.back();
-            auto value = make_pair(current.row, current.col);
-            locationVisitedHistory[current.room].push_back(value);
+            locationVisitedHistory[current.row].push_back(current);
             
             search.pop_back();      // deleting element once we remove it off stack
 //            locationVisitedHistory.push_back(current); // add it to location history now
