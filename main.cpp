@@ -12,6 +12,7 @@
 #include <vector>
 #include <deque>
 #include <algorithm>
+#include <map>
 
 using namespace std;
 
@@ -42,6 +43,7 @@ private:
     // main data structures
     vector<vector<vector<char>>> castleMap;
     deque<Location> search;
+    std::map<size_t, vector<std::pair<size_t,size_t>>> locationVisitedHistory;
     
     // Marco (S) and Countess (C) location
     Location S;
@@ -148,9 +150,11 @@ private:
     }
     
     //TODO: need to replace check here; think of not doing O(N), maybe try binary / ternary search / need sorted vector for that
-    bool locationNotVisited(const vector<Location> &locationHistory, const Location &input) {
+    bool locationNotVisited(const Location &input) {
         // check to see if current has been previously visited
-        return (find(locationHistory.begin(), locationHistory.end(), input)) == locationHistory.end();
+        vector<std::pair<size_t,size_t>> valuesForRoom = locationVisitedHistory[input.room];
+        std::pair<size_t, size_t> rowColPair = make_pair(input.row, input.col);
+        return (find(valuesForRoom.begin(), valuesForRoom.end(), rowColPair)) == valuesForRoom.end();
     }
     
 public:
@@ -161,8 +165,10 @@ public:
 void castleMap::searchAlgorithm() {
     search.push_back(S);
     Location current;
-    vector<Location> locationVisitedHistory;
-//    vector<Location> locationMoveableHistory;
+    vector<std::pair<size_t,size_t>> temp = {};
+    for (size_t i = 1; i <= numRooms; ++i) {
+        locationVisitedHistory[i] = temp;
+    }
     bool foundC = false;
 //    int i = 0;
 
@@ -172,9 +178,12 @@ void castleMap::searchAlgorithm() {
 
             // Set Current
             current = search.back();
-            search.pop_back();      // deleting element once we remove it off stack
-            locationVisitedHistory.push_back(current); // add it to location history now
+            auto value = make_pair(current.row, current.col);
+            locationVisitedHistory[current.room].push_back(value);
             
+            search.pop_back();      // deleting element once we remove it off stack
+//            locationVisitedHistory.push_back(current); // add it to location history now
+
             // found C
             if (current == C) {
                 foundC = true;
@@ -182,7 +191,7 @@ void castleMap::searchAlgorithm() {
                 break;
             }
             cout << "Current: (" << current.room << "," << current.row << "," << current.col << ")" << "\n";
-            
+
             // TODO: include another if statement to not do this every iteration -- if (char != '.' etc.)
             // Warp Pipe; probably need to do some level of char->int int-> char conversion here
             uint32_t level = static_cast<uint32_t>(castleMap[current.room][current.row][current.col] - '0');
@@ -191,15 +200,15 @@ void castleMap::searchAlgorithm() {
                 // create new exit location
                 Location exitLoc = {level, current.row, current.col};
                 // check to see if warp pipe isn't taking you to a enemy or a solid wall and check if you've already been there
-                if (locationIsMoveable(exitLoc) && locationNotVisited(locationVisitedHistory, exitLoc)) {
+                if (locationIsMoveable(exitLoc) && locationNotVisited(exitLoc)) {
                     // TODO: do we need to do this? do we need to clear all elements from previous room?
-                    // search.clear();
+                    //search.clear();
                     search.push_back(exitLoc);
                     continue;
                 }
                 //do nothing
             }
-            
+
             // Adding to Search
             if (current.row != 0) {
                 // N: current row - 1
@@ -207,36 +216,32 @@ void castleMap::searchAlgorithm() {
                 Location N = {current.room, current.row - 1, current.col};
                 //cout << N << " " << locationIsMoveable(N) << "\n";
                 // check to see if location is moveable
-                if (locationIsMoveable(N) && locationNotVisited(locationVisitedHistory, N)) {
+                if (locationIsMoveable(N) && locationNotVisited(N)) {
                     search.push_back(N);
-                    //locationMoveableHistory.push_back(N); // add it to location history now
                 }
             }
             if (current.row != lengthRoomSide-1) {
                 // E: current col + 1
                 Location E = {current.room, current.row, current.col + 1};
                 //cout << E << " " << locationIsMoveable(E) << "\n";
-                if (locationIsMoveable(E) && locationNotVisited(locationVisitedHistory, E)) {
+                if (locationIsMoveable(E) && locationNotVisited(E)) {
                     search.push_back(E);
-                    //locationMoveableHistory.push_back(E); // add it to location history now
                 }
             }
             if (current.row != lengthRoomSide-1) {
                 // S: current row + 1; check to see if it's out of bounds
                 Location S = {current.room, current.row + 1, current.col};
                 //cout << S << " " << locationIsMoveable(S) << "\n";
-                if (locationIsMoveable(S) && locationNotVisited(locationVisitedHistory, S)) {
+                if (locationIsMoveable(S) && locationNotVisited(S)) {
                     search.push_back(S);
-//                    locationMoveableHistory.push_back(S); // add it to location history now
                 }
             }
             if (current.col != 0) {
                 // W: current col - 1; check to see if it's out of bounds
                 Location W = {current.room, current.row, current.col - 1};
                 //cout << W << " " << locationIsMoveable(W) << "\n";
-                if (locationIsMoveable(W) && locationNotVisited(locationVisitedHistory, W)) {
+                if (locationIsMoveable(W) && locationNotVisited(W)) {
                     search.push_back(W);
-//                    locationMoveableHistory.push_back(W); // add it to location history now
                 }
             }
             
