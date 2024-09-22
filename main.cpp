@@ -174,10 +174,15 @@ void castleMap::searchAlgorithm() {
         while (!search.empty()) {
 //            ++i;
 
-            // Set Current
-            current = search.back();
-            search.pop_back();      // deleting element once we remove it off stack
-//            locationVisitedHistory.push_back(current); // add it to location history now
+            if(algorithm == "stack"){
+                // Set Current
+                current = search.back();
+                search.pop_back();      // deleting element once we remove it off stack
+            }
+            if(algorithm == "queue"){
+                current = search.front();
+                search.pop_front();
+            }
 
             // found C
             if (current == C) {
