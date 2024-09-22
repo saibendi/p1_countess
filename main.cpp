@@ -38,12 +38,16 @@ private:
             os << "(" << loc.room << "," << loc.row << "," << loc.col << ")" << "\n";
             return os;
         }
+        
+        bool operator<(const Location &rhs) const {
+            return col <= rhs.col;
+        }
     };
     
     // main data structures
     vector<vector<vector<char>>> castleMap;
     deque<Location> search;
-    std::map<size_t, vector<Location>> locationVisitedHistory;
+    vector<vector<vector<char>>> backtrace;
     
     // Marco (S) and Countess (C) location
     Location S;
@@ -148,14 +152,11 @@ private:
         }
         return roomIsValid && rowIsValid && colIsValid && !newLocIsWall && !newLocIsMinion;
     }
-    
-    //TODO: need to replace check here; think of not doing O(N), maybe try binary / ternary search / need sorted vector for that
+        
     bool locationNotVisited(const Location &input) {
-        // check to see if current has been previously visited
-        vector<Location> rowValues = locationVisitedHistory[input.row];
-        return (find(rowValues.begin(), rowValues.end(), input)) == rowValues.end();
+        return (backtrace[input.room][input.row][input.col] == '-');
     }
-    
+
 public:
     void readFromInput(const string &filename);
     void searchAlgorithm();
@@ -164,11 +165,9 @@ public:
 void castleMap::searchAlgorithm() {
     search.push_back(S);
     Location current;
-    vector<Location> temp = {};
-    for (size_t i = 0; i < lengthRoomSide; ++i) {
-        locationVisitedHistory[i] = temp;
-    }
     bool foundC = false;
+    backtrace.resize(numRooms, vector<vector<char>>(lengthRoomSide, vector<char>(lengthRoomSide, '-'))); // Initialize with '.' or any default char
+    backtrace[S.room][S.row][S.col] = 'S';
 //    int i = 0;
 
     if (inputMode == 'L') {
@@ -177,8 +176,6 @@ void castleMap::searchAlgorithm() {
 
             // Set Current
             current = search.back();
-            locationVisitedHistory[current.row].push_back(current);
-            
             search.pop_back();      // deleting element once we remove it off stack
 //            locationVisitedHistory.push_back(current); // add it to location history now
 
@@ -202,6 +199,7 @@ void castleMap::searchAlgorithm() {
                     // TODO: do we need to do this? do we need to clear all elements from previous room?
                     //search.clear();
                     search.push_back(exitLoc);
+                    backtrace[exitLoc.room][exitLoc.row][exitLoc.col] = 'p';
                     continue;
                 }
                 //do nothing
@@ -212,42 +210,41 @@ void castleMap::searchAlgorithm() {
                 // N: current row - 1
                 // if row is not equal to 0
                 Location N = {current.room, current.row - 1, current.col};
-                //cout << N << " " << locationIsMoveable(N) << "\n";
                 // check to see if location is moveable
                 if (locationIsMoveable(N) && locationNotVisited(N)) {
                     search.push_back(N);
+                    backtrace[N.room][N.row][N.col] = 'n';
                 }
             }
             if (current.row != lengthRoomSide-1) {
                 // E: current col + 1
                 Location E = {current.room, current.row, current.col + 1};
-                //cout << E << " " << locationIsMoveable(E) << "\n";
                 if (locationIsMoveable(E) && locationNotVisited(E)) {
                     search.push_back(E);
+                    backtrace[E.room][E.row][E.col] = 'e';
                 }
             }
             if (current.row != lengthRoomSide-1) {
                 // S: current row + 1; check to see if it's out of bounds
                 Location S = {current.room, current.row + 1, current.col};
-                //cout << S << " " << locationIsMoveable(S) << "\n";
                 if (locationIsMoveable(S) && locationNotVisited(S)) {
                     search.push_back(S);
+                    backtrace[S.room][S.row][S.col] = 's';
                 }
             }
             if (current.col != 0) {
                 // W: current col - 1; check to see if it's out of bounds
                 Location W = {current.room, current.row, current.col - 1};
-                //cout << W << " " << locationIsMoveable(W) << "\n";
                 if (locationIsMoveable(W) && locationNotVisited(W)) {
                     search.push_back(W);
+                    backtrace[W.room][W.row][W.col] = 'w';
                 }
             }
-            
-            //cout << "-----------Search----------" << "\n";
-            //for (auto i : search) {
-            //    cout << i;
-            //}
-//            if (i == 97) {
+//            cout << "-----------Search----------" << "\n";
+//            for (auto i : search) {
+//                cout << i;
+//            }
+//            if (i == 3) {
 //                break;
 //            }
         }
