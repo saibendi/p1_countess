@@ -38,12 +38,29 @@ private:
             os << "(" << loc.room << "," << loc.row << "," << loc.col << ")" << "\n";
             return os;
         }
-        
-        bool operator<(const Location &rhs) const {
-            return col <= rhs.col;
-        }
     };
     
+    // defining a struct pathLocation to hold values
+    struct pathLocation {
+        size_t room;
+        size_t row;
+        size_t col;
+        char symbol;
+        
+        //custom ctor
+        pathLocation(const Location loc_in, const char symbol_in) : room(loc_in.room), row(loc_in.row), col(loc_in.col), symbol(symbol_in) {};
+        
+        bool operator==(const pathLocation &rhs) const {
+            return room == rhs.room && row == rhs.row && col == rhs.col && symbol == rhs.symbol;
+        }
+        
+        //TODO: comment out; just for debug purposes until I find something to do it with it later
+        friend ostream& operator<<(ostream& os, const pathLocation &loc) {
+            os << "(" << loc.room << "," << loc.row << "," << loc.col << "," << loc.symbol << ")" << "\n";
+            return os;
+        }
+    };
+
     // main data structures
     vector<vector<vector<char>>> castleMap;
     deque<Location> search;
@@ -160,8 +177,65 @@ private:
 public:
     void readFromInput(const string &filename);
     void searchAlgorithm();
+    void outputPath();
 };
 
+void castleMap::outputPath() {
+    deque<pathLocation> path;
+    Location current = C;
+//    cout << current << "\n";
+//    int debug = 0;
+    // loop until starting position
+    while (!(current == S)) {
+        cout << "Loop current: " << current << "\n";
+//        debug++;
+//        if (debug == 5) {
+//            break;
+//        }
+        // if west exists, add to path and make that current
+        Location W = {current.room, current.row, current.col - 1};
+        if (locationIsMoveable(W) && backtrace[W.room][W.row][W.col] != '-') {
+            pathLocation W_path(W, backtrace[W.room][W.row][W.col]);
+            path.push_front(W_path);
+            backtrace[W.room][W.row][W.col] = '-';
+            current = W;
+            continue;
+        }
+        // if south exists, add to path and make that current
+        Location So = {current.room, current.row+1, current.col};
+//        cout << locationIsMoveable(So) << "\n";
+//        cout << backtrace[So.room][So.row+1][So.col] << "\n";
+        if (locationIsMoveable(So) && backtrace[So.room][So.row][So.col] != '-') {
+            pathLocation So_path(So, backtrace[So.room][So.row][So.col]);
+            path.push_front(So_path);
+            backtrace[So.room][So.row][So.col] = '-';
+            current = So;
+            continue;
+        }
+        // if east exists, add to path and make that current
+        Location E = {current.room, current.row, current.col+1};
+        if (locationIsMoveable(E) && backtrace[E.room][E.row][E.col] != '-') {
+            pathLocation E_path(E, backtrace[E.room][E.row][E.col]);
+            path.push_front(E_path);
+            backtrace[E.room][E.row][E.col] = '-';
+            current = E;
+            continue;
+        }
+        // if north exists, add to path and make that current
+        Location N = {current.room, current.row-1, current.col};
+        if (locationIsMoveable(N) && backtrace[N.room][N.row][N.col] != '-') {
+            pathLocation N_path(N, backtrace[N.room][N.row][N.col]);
+            path.push_front(N_path);
+            backtrace[N.room][N.row][N.col] = '-';
+            current = N;
+            continue;
+        }
+    }
+    for (auto loc : path) {
+        cout << loc << "\n";
+    }
+
+}
 void castleMap::searchAlgorithm() {
     search.push_back(S);
     Location current;
@@ -174,23 +248,24 @@ void castleMap::searchAlgorithm() {
         while (!search.empty()) {
 //            ++i;
 
-            if(algorithm == "stack"){
+//            if(algorithm == "stack"){
                 // Set Current
                 current = search.back();
                 search.pop_back();      // deleting element once we remove it off stack
-            }
-            if(algorithm == "queue"){
-                current = search.front();
-                search.pop_front();
-            }
+//            }
+//            if(algorithm == "queue"){
+//                current = search.front();
+//                search.pop_front();
+//            }
 
             // found C
             if (current == C) {
                 foundC = true;
                 cout << "Found C: " << C << "\n";
+                
                 break;
             }
-            cout << "Current: (" << current.room << "," << current.row << "," << current.col << ")" << "\n";
+            cout << "Current: (" << current.room << "," << current.row << "," << current.col << "," << backtrace[current.room][current.row][current.col] << ")" << "\n";
 
             // TODO: include another if statement to not do this every iteration -- if (char != '.' etc.)
             // Warp Pipe; probably need to do some level of char->int int-> char conversion here
@@ -231,10 +306,10 @@ void castleMap::searchAlgorithm() {
             }
             if (current.row != lengthRoomSide-1) {
                 // S: current row + 1; check to see if it's out of bounds
-                Location S = {current.room, current.row + 1, current.col};
-                if (locationIsMoveable(S) && locationNotVisited(S)) {
-                    search.push_back(S);
-                    backtrace[S.room][S.row][S.col] = 's';
+                Location So = {current.room, current.row + 1, current.col};
+                if (locationIsMoveable(So) && locationNotVisited(So)) {
+                    search.push_back(So);
+                    backtrace[So.room][So.row][So.col] = 's';
                 }
             }
             if (current.col != 0) {
