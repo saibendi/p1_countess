@@ -65,6 +65,7 @@ private:
     vector<vector<vector<char>>> castleMap;
     deque<Location> search;
     vector<vector<vector<char>>> backtrace;
+    vector<vector<vector<Location>>> previousLocation;
     
     // Marco (S) and Countess (C) location
     Location S;
@@ -187,60 +188,57 @@ void castleMap::outputPath() {
 //    int debug = 0;
     // loop until starting position
     while (!(current == S)) {
-        cout << "Loop current: " << current << "\n";
+//        cout << "Loop current: " << current << "\n";
 //        debug++;
 //        if (debug == 5) {
 //            break;
 //        }
-        // if west exists, add to path and make that current
+        
         Location W = {current.room, current.row, current.col - 1};
-        if (locationIsMoveable(W) && backtrace[W.room][W.row][W.col] != '-') {
-            pathLocation W_path(W, backtrace[W.room][W.row][W.col]);
-            path.push_front(W_path);
-            backtrace[W.room][W.row][W.col] = '-';
-            current = W;
-            continue;
-        }
-        // if south exists, add to path and make that current
         Location So = {current.room, current.row+1, current.col};
-//        cout << locationIsMoveable(So) << "\n";
-//        cout << backtrace[So.room][So.row+1][So.col] << "\n";
-        if (locationIsMoveable(So) && backtrace[So.room][So.row][So.col] != '-') {
-            pathLocation So_path(So, backtrace[So.room][So.row][So.col]);
-            path.push_front(So_path);
-            backtrace[So.room][So.row][So.col] = '-';
-            current = So;
-            continue;
-        }
-        // if east exists, add to path and make that current
         Location E = {current.room, current.row, current.col+1};
-        if (locationIsMoveable(E) && backtrace[E.room][E.row][E.col] != '-') {
-            pathLocation E_path(E, backtrace[E.room][E.row][E.col]);
-            path.push_front(E_path);
-            backtrace[E.room][E.row][E.col] = '-';
-            current = E;
+        Location N = {current.room, current.row-1, current.col};
+        current = previousLocation[current.room][current.row][current.col];
+        
+//        cout << "previous: " << current << "\n";
+
+        if (current == W) {
+            pathLocation current_path(current, 'e');
+            path.push_front(current_path);
             continue;
         }
-        // if north exists, add to path and make that current
-        Location N = {current.room, current.row-1, current.col};
-        if (locationIsMoveable(N) && backtrace[N.room][N.row][N.col] != '-') {
-            pathLocation N_path(N, backtrace[N.room][N.row][N.col]);
-            path.push_front(N_path);
-            backtrace[N.room][N.row][N.col] = '-';
-            current = N;
+        else if (current == So) {
+            pathLocation current_path(current, 'n');
+            path.push_front(current_path);
+            continue;
+        }
+        else if (current == E) {
+            pathLocation current_path(current, 'w');
+            path.push_front(current_path);
+            continue;
+        }
+        else if (current == N) {
+            pathLocation current_path(current, 's');
+            path.push_front(current_path);
+            continue;
+        }
+        else if (backtrace[current.room][current.row][current.col] == 'p') {
+            pathLocation current_path(current, 's');
+            path.push_front(current_path);
             continue;
         }
     }
     for (auto loc : path) {
-        cout << loc << "\n";
+        cout << loc;
     }
 
 }
 void castleMap::searchAlgorithm() {
     search.push_back(S);
-    Location current;
+    Location current = {0,0,0};
     bool foundC = false;
     backtrace.resize(numRooms, vector<vector<char>>(lengthRoomSide, vector<char>(lengthRoomSide, '-'))); // Initialize with '.' or any default char
+    previousLocation.resize(numRooms, vector<vector<Location>>(lengthRoomSide, vector<Location>(lengthRoomSide))); // Initialize with '' or any default char
     backtrace[S.room][S.row][S.col] = 'S';
 //    int i = 0;
 
@@ -249,7 +247,7 @@ void castleMap::searchAlgorithm() {
 //            ++i;
 
 //            if(algorithm == "stack"){
-                // Set Current
+//                // Set Current
                 current = search.back();
                 search.pop_back();      // deleting element once we remove it off stack
 //            }
@@ -265,7 +263,7 @@ void castleMap::searchAlgorithm() {
                 
                 break;
             }
-            cout << "Current: (" << current.room << "," << current.row << "," << current.col << "," << backtrace[current.room][current.row][current.col] << ")" << "\n";
+//            cout << "Current: (" << current.room << "," << current.row << "," << current.col << "," << backtrace[current.room][current.row][current.col] << ")" << "\n";
 
             // TODO: include another if statement to not do this every iteration -- if (char != '.' etc.)
             // Warp Pipe; probably need to do some level of char->int int-> char conversion here
@@ -280,6 +278,7 @@ void castleMap::searchAlgorithm() {
                     //search.clear();
                     search.push_back(exitLoc);
                     backtrace[exitLoc.room][exitLoc.row][exitLoc.col] = 'p';
+                    previousLocation[exitLoc.room][exitLoc.row][exitLoc.col] = current;
                     continue;
                 }
                 //do nothing
@@ -292,32 +291,40 @@ void castleMap::searchAlgorithm() {
                 Location N = {current.room, current.row - 1, current.col};
                 // check to see if location is moveable
                 if (locationIsMoveable(N) && locationNotVisited(N)) {
+//                    cout << N;
                     search.push_back(N);
                     backtrace[N.room][N.row][N.col] = 'n';
+                    previousLocation[N.room][N.row][N.col] = current;
                 }
             }
-            if (current.row != lengthRoomSide-1) {
+            if (current.col != lengthRoomSide-1) {
                 // E: current col + 1
                 Location E = {current.room, current.row, current.col + 1};
                 if (locationIsMoveable(E) && locationNotVisited(E)) {
+//                    cout << E;
                     search.push_back(E);
                     backtrace[E.room][E.row][E.col] = 'e';
+                    previousLocation[E.room][E.row][E.col] = current;
                 }
             }
             if (current.row != lengthRoomSide-1) {
                 // S: current row + 1; check to see if it's out of bounds
                 Location So = {current.room, current.row + 1, current.col};
                 if (locationIsMoveable(So) && locationNotVisited(So)) {
+//                    cout << So;
                     search.push_back(So);
                     backtrace[So.room][So.row][So.col] = 's';
+                    previousLocation[So.room][So.row][So.col] = current;
                 }
             }
             if (current.col != 0) {
                 // W: current col - 1; check to see if it's out of bounds
                 Location W = {current.room, current.row, current.col - 1};
                 if (locationIsMoveable(W) && locationNotVisited(W)) {
+//                    cout << W;
                     search.push_back(W);
                     backtrace[W.room][W.row][W.col] = 'w';
+                    previousLocation[W.room][W.row][W.col] = current;
                 }
             }
 //            cout << "-----------Search----------" << "\n";
